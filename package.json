@@ -20,6 +20,7 @@
     "mongoose": "^6.0.8",
     "mongose": "0.0.2-security",
     "morgan": "^1.10.0",
+    "node-fetch": "^2.6.1",
     "pug": "^3.0.2"
   },
   "devDependencies": {
