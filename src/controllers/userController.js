@@ -140,6 +140,7 @@ export const finishGithubLogin = async(req, res) => {
 export const getEdit = (req, res) => {
     return res.render("edit-profile", {pageTitle: "Edit Profile"});
 };
+
 export const postEdit = async (req, res) => {
     const {
         session: {
@@ -147,17 +148,47 @@ export const postEdit = async (req, res) => {
         },
         body: { name, email, username, location },
     } = req;
-    await User.findByIdAndUpdate(_id, {
-        name:name,
-        email,
-        username,
-        location,
-    });
-    return res.render("edit-profile");
+    const pageTitle = "Edit Profile";
+    const exists = await User.exists({ $or: [{username}, {email}]});
+    if(exists){ // 중복 email, username이 존재하면
+        return res.status(400).render("edit-profile", {
+            pageTitle,
+            errorMessage: "This username/email is already taken.",
+        })
+    }
+    try{
+        const updateUser = await User.findByIdAndUpdate(_id, {
+            name,
+            email,
+            username,
+            location,
+        },
+        { new: true }
+        );
+        req.session.user = updateUser;
+        return res.redirect("/users/edit");
+    } catch(error){
+        return res.status(400).render("edit-profile", {
+            pageTitle: "Edit Profile",
+            errorMessage: error._message,
+        });
+    }
 };
 
 export const logout = (req, res) => {
     req.session.destroy();
     return res.redirect("/");
 };
+
+export const getChangePassword = (req, res) => {
+    if(req.session.user.socialOnly === true){
+        return res.redirect("/");
+    }
+    return res.render("users/change-password", {pageTitle:"Change Password"})
+}
+export const postChangePassword = (req, res) => {
+    
+    return res.redirect("/")
+}
+
 export const see = (req, res) => res.send("See User");
