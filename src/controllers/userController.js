@@ -35,8 +35,9 @@ export const postJoin = async(req, res) => {
         });
     }
 };
-export const getLogin = (req, res) => 
+export const getLogin = (req, res) => {
     res.render("login", {pageTitle: "Login"});
+};
 
 export const postLogin = async(req, res) => {
     const {username, password} = req.body;
@@ -185,10 +186,26 @@ export const getChangePassword = (req, res) => {
         return res.redirect("/");
     }
     return res.render("users/change-password", {pageTitle:"Change Password"})
-}
-export const postChangePassword = (req, res) => {
-    
-    return res.redirect("/")
-}
+};
+export const postChangePassword = async (req, res) => {
+    const {
+        session: {
+            user: { _id, password },
+        },
+        body: { oldPassword, newPassword, newPasswordConfirmation },
+    } = req;
+    const ok = await bcrypt.compare(oldPassword, password);
+    if (!ok){
+        return res.status(400).render("users/change-password", {pageTitle:"Change Password", errorMessage:"The current password is incorrect"})
+    }
+    if(newPassword !== newPasswordConfirmation){
+        return res.status(400).render("users/change-password", {pageTitle:"Change Password", errorMessage:"The new password does not match the confirmation"});
+    }
+    const user = await User.findById(_id);
+    user.password = newPassword;
+    await user.save(); // triger pre save
+    req.session.user.password = user.password;
+    return res.redirect("/users/logout");
+};
 
 export const see = (req, res) => res.send("See User");
