@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 export const getJoin = (req, res) => res.render("join", {pageTitle : "Join"});
 export const postJoin = async(req, res) => {
-    const {name, username, email, password, password2, location} = req.body;
+    const {name, username, email, avatarUrl, password, password2, location} = req.body;
     const pageTitle = "Join";
     if (password !== password2){
         return res.status(400).render("join", {
@@ -23,7 +23,8 @@ export const postJoin = async(req, res) => {
         await User.create({
             name, 
             username, 
-            email, 
+            email,
+            avatarUrl, 
             password, 
             location,
         })
@@ -148,33 +149,49 @@ export const postEdit = async (req, res) => {
             user: { _id, avatarUrl },
         },
         body: { name, email, username, location },
+        file,
     } = req;
-    const pageTitle = "Edit Profile";
-    const exists = await User.exists({ $or: [{username}, {email}]});
-    if(exists){ // 중복 email, username이 존재하면
-        return res.status(400).render("edit-profile", {
-            pageTitle,
-            errorMessage: "This username/email is already taken.",
-        })
-    }
-    try{
-        const updateUser = await User.findByIdAndUpdate(_id, {
-            avatarUrl: file ? file.path :avatarUrl, // handling file is undefine case
-            name,
-            email,
-            username,
-            location,
-        },
-        { new: true }
-        );
-        req.session.user = updateUser;
-        return res.redirect("/users/edit");
-    } catch(error){
-        return res.status(400).render("edit-profile", {
-            pageTitle: "Edit Profile",
-            errorMessage: error._message,
-        });
-    }
+
+    //===========================================================================
+    const updateUser = await User.findByIdAndUpdate(_id, {
+        avatarUrl: file ? file.path : avatarUrl, // handling file is undefine case
+        name,
+        email,
+        username,
+        location,
+    },
+    { new: true }
+    );
+    req.session.user = updateUser;
+    return res.redirect("/users/edit");
+    //===========================================================================
+
+    // const pageTitle = "Edit Profile";
+    // const exists = await User.exists({ $or: [{username}, {email}]});
+    // if(exists){ // 중복 email, username이 존재하면
+    //     return res.status(400).render("edit-profile", {
+    //         pageTitle,
+    //         errorMessage: "This username/email is already taken.",
+    //     })
+    // }
+    // try{
+    //     const updateUser = await User.findByIdAndUpdate(_id, {
+    //         avatarUrl: file ? file.path :avatarUrl, // handling file is undefine case
+    //         name,
+    //         email,
+    //         username,
+    //         location,
+    //     },
+    //     { new: true }
+    //     );
+    //     req.session.user = updateUser;
+    //     return res.redirect("/users/edit");
+    // } catch(error){
+    //     return res.status(400).render("edit-profile", {
+    //         pageTitle: "Edit Profile",
+    //         errorMessage: error._message,
+    //     });
+    // }
 };
 
 export const logout = (req, res) => {
