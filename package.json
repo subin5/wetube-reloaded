@@ -13,6 +13,7 @@
   "author": "subing",
   "license": "AJ",
   "dependencies": {
+    "babel-loader": "^8.2.3",
     "bcrypt": "^5.0.1",
     "connect-mongo": "^4.6.0",
     "dotenv": "^10.0.0",
@@ -30,6 +31,7 @@
     "@babel/node": "^7.15.4",
     "@babel/preset-env": "^7.15.4",
     "bable-loader": "^0.0.1-security",
+    "css-loader": "^6.5.1",
     "mini-css-extract-plugin": "^2.5.2",
     "nodemon": "^2.0.15",
     "sass": "^1.49.0",
