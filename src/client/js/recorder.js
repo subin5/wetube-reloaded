@@ -14,6 +14,13 @@ const handleStart = () => {
     startBtn.removeEventListener("click", handleStart);
     startBtn.addEventListener("click", handleStop);
     const recorder = new MediaRecorder(stream);
+    recorder.ondataavailable = (e) => {
+        
+    };
+    recorder.start();
+    setTimeout(() => {
+        recorder.stup();
+    }, 10000);
 };
 
 const init = async () => {
