@@ -2,25 +2,30 @@ const startBtn = document.getElementById("startBtn");
 const video = document.getElementById("preview");
 
 let stream;
+let recorder;
+
+const handleDownload = () => {
+
+};
 
 const handleStop = () => {
-    startBtn.innerText = "Start Recording";
+    startBtn.innerText = "Download Recording";
     startBtn.removeEventListener("click", handleStop);
-    startBtn.addEventListener("click", handleStart);
+    startBtn.addEventListener("click", handleDownload);
 };
 
 const handleStart = () => {
     startBtn.innerText = "Stop Recording";
     startBtn.removeEventListener("click", handleStart);
     startBtn.addEventListener("click", handleStop);
-    const recorder = new MediaRecorder(stream);
-    recorder.ondataavailable = (e) => {
-        
+    recorder = new MediaRecorder(stream);
+    recorder.ondataavailable = (event) => {
+        const videoFile = URL.createObjectURL(event.data);
+        video.srcObject = null;
+        video.loop = true;
+        video.play();
     };
     recorder.start();
-    setTimeout(() => {
-        recorder.stup();
-    }, 10000);
 };
 
 const init = async () => {
