@@ -86,10 +86,14 @@ const handleMouseMove = () => {
     }
     videoControls.classList.add("showing");
     controlsMovementTimeout = setTimeout(hideControls, 3000);
-}
+};
 
 const handleMouseLeave = () => {
     controlsTimeout = setTimeout(hideControls, 3000);
+};
+
+const handleEnded = () => {
+
 };
 
 playBtn.addEventListener("click", handlePlayClick);
@@ -97,7 +101,8 @@ muteBtn.addEventListener("click", handleMute);
 volumeRange.addEventListener("input", handleVolumeChange);
 video.addEventListener("loadedmetadata", handleLoadedMetadata);
 video.addEventListener("timeupdate", handleTimeUpdate);
+video.addEventListener("ended", handleEnded);
+videoContainer.addEventListener("mousemove", handleMouseMove);
+videoContainer.addEventListener("mouseleave", handleMouseLeave);
 timeline.addEventListener("input", handleTimeLineChange);
 fullScreenBtn.addEventListener("click", handleFullscreen);
-video.addEventListener("mousemove", handleMouseMove);
-video.addEventListener("mouseleave", handleMouseLeave);
