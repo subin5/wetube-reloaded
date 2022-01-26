@@ -196,11 +196,13 @@ export const postEdit = async (req, res) => {
 
 export const logout = (req, res) => {
     req.session.destroy();
+    req.reflash("info", "Bye Bye");
     return res.redirect("/");
 };
 
 export const getChangePassword = (req, res) => {
     if(req.session.user.socialOnly === true){
+        req.reflash("error", "Can't change password.");
         return res.redirect("/");
     }
     return res.render("users/change-password", {pageTitle:"Change Password"})
@@ -222,7 +224,7 @@ export const postChangePassword = async (req, res) => {
     const user = await User.findById(_id);
     user.password = newPassword;
     await user.save(); // triger pre save
-    req.session.user.password = user.password;
+    req.reflash("info", "Password updated");
     return res.redirect("/users/logout");
 };
 

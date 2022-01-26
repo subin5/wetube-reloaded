@@ -7,6 +7,7 @@ import userRouter from "./routers/userRouter";
 import videoRouter from "./routers/VideoRouter";
 import apiRouter from "./routers/apiRouter";
 import { localsMiddleware } from "./middlewares";
+import flash from "express-flash";
 
 // create an application
 const app = express();
@@ -26,7 +27,7 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
 })
 );
-
+app.use(flash());
 app.use((_, res, next) => {
     res.header('Cross-Origin-Opener-Policy', 'same-origin');
     res.header('Cross-Origin-Embedder-Policy', 'require-corp');
