@@ -1,3 +1,5 @@
+import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+
 const startBtn = document.getElementById("startBtn");
 const video = document.getElementById("preview");
 
@@ -7,6 +9,13 @@ let videoFile;
 
 
 const handleDownload = () => {
+    const ffmpeg = createFfmpeg({ log: true });
+    await ffmpeg.load();
+
+    ffmpeg.FS("writeFile", "recording.webm", await fetchFile(videoFile));
+
+    await ffmpeg.run("-i", recording.webm, "-r", "60", "output.mp4");
+
     const a = document.createElement("a");
     a.href = videoFile;
     a.download = "MyRecording.webm";
