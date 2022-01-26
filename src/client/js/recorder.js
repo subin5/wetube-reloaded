@@ -21,25 +21,25 @@ const downloadFile = (fileUrl, fileName) => {
     a.click();
 }
 
-const handleDownload = () => {
-    const ffmpeg = createFfmpeg({ log: true });
+const handleDownload = async() => {
+    const ffmpeg = createFFmpeg({ log: true });
     await ffmpeg.load();
 
-    ffmpeg.FS("writeFile", "files.input", await fetchFile(videoFile));
+    ffmpeg.FS("writeFile", files.input, await fetchFile(videoFile));
 
-    await ffmpeg.run("-i", files.input, "-r", "60", "files.output");
+    await ffmpeg.run("-i", files.input, "-r", "60", files.output);
 
     await ffmpeg.run(
         "-i",
-        "files.input",
+        files.input,
         "-ss", "00:00:01",
-        -"frames:v",
+        "-frames:v",
         "1",
-        "files.thumb"
+        files.thumb,
     );
 
-    const mp4File = ffmpeg.FS("readFile", "files.output");
-    const thumbFile = ffmpeg.FS("readFile", "thumnail.jpg");
+    const mp4File = ffmpeg.FS("readFile", files.output);
+    const thumbFile = ffmpeg.FS("readFile", files.thumb);
 
     const mp4Blob = new Blob([mp4File.buffer], { type: "video/mp4" });
     const thumbBlob = new Blob([thumbFile.buffer], { type: "image/jpg" });
@@ -50,22 +50,32 @@ const handleDownload = () => {
     downloadFile(mp4Url, "MyRecording.mp4");
     downloadFile(thumbUrl, "MyThumbnail.jpg");
 
+    ffmpeg.FS("unlink", "recording.webm");
+    ffmpeg.FS("unlink", "output.mp4");
+    ffmpeg.FS("unlink", "thumbnail.jpg");
+
+    URL.revokeObjectURL(mp4Url);
+    URL.revokeObjectURL(thumbUrl);
+    URL.revokeObjectURL(videoFile);
+
 };
 
 const handleStop = () => {
     startBtn.innerText = "Download Recording";
     startBtn.removeEventListener("click", handleStop);
     startBtn.addEventListener("click", handleDownload);
+    recorder.stop();
 };
 
 const handleStart = () => {
     startBtn.innerText = "Stop Recording";
     startBtn.removeEventListener("click", handleStart);
     startBtn.addEventListener("click", handleStop);
-    recorder = new MediaRecorder(stream);
+    recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
     recorder.ondataavailable = (event) => {
         videoFile = URL.createObjectURL(event.data);
         video.srcObject = null;
+        video.src = videoFile;
         video.loop = true;
         video.play();
     };
@@ -74,7 +84,7 @@ const handleStart = () => {
 
 const init = async () => {
     stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: false,
         video: true,
     });
     video.srcObject = stream;
