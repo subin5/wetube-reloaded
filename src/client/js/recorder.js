@@ -11,7 +11,7 @@ const files = {
     input: "recording.webm",
     output: "output.mp4",
     thumb: "thumbnail.jpg",
-}
+};
 
 const downloadFile = (fileUrl, fileName) => {
     const a = document.createElement("a");
@@ -19,7 +19,7 @@ const downloadFile = (fileUrl, fileName) => {
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
-}
+};
 
 const handleDownload = async() => {
     actionBtn.removeEventListener("click", handleDownload);
@@ -56,9 +56,9 @@ const handleDownload = async() => {
     downloadFile(mp4Url, "MyRecording.mp4");
     downloadFile(thumbUrl, "MyThumbnail.jpg");
 
-    ffmpeg.FS("unlink", "recording.webm");
-    ffmpeg.FS("unlink", "output.mp4");
-    ffmpeg.FS("unlink", "thumbnail.jpg");
+    ffmpeg.FS("unlink", files.input);
+    ffmpeg.FS("unlink", files.output);
+    ffmpeg.FS("unlink", files.thumb);
 
     URL.revokeObjectURL(mp4Url);
     URL.revokeObjectURL(thumbUrl);
@@ -95,7 +95,10 @@ const handleStart = () => {
 const init = async () => {
     stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
-        video: true,
+        video: {
+            width: 1024,
+            height: 576,
+        },
     });
     video.srcObject = stream;
     video.play();

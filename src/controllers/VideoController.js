@@ -12,7 +12,7 @@ export const watch = async(req, res) => {
     const { 
         user: { _id }, 
     } = req.session;
-    const video = await Video.findById(id).populate("owner");
+    const video = await Video.findById(id).populate("owner").populate("comments");
     if(video){ 
         return res.render("watch", {pageTitle: video.title, video});
     }
@@ -61,7 +61,9 @@ export const postUpload = async(req, res) => {
         user: { _id },
     } = req.session;
     const { video, thumb } = req.files;
+
     const { title, description, hashtags } = req.body;
+    
     try{
         const newVideo = await Video.create({
             title,
@@ -132,6 +134,8 @@ export const createComment = async (req, res) => {
         params: { id },
     } = req;
 
+    console.log(user, text, id);
+
     const video = await Video.findById(id);
 
     if(!video){
@@ -143,6 +147,7 @@ export const createComment = async (req, res) => {
         owner: user._id,
         video: id,
     });
-
+    video.comments.push(comment._id);
+    video.save();
     return res.sendStatus(201);
 }
